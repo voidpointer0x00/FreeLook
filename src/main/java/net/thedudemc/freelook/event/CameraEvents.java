@@ -55,7 +55,7 @@ public class CameraEvents {
             initialPress = false;
         } else {
             if (!initialPress) {
-                if (ModConfigs.FREELOOK.getSettings().enableInterpolation()) {
+                if (ModConfigs.FREELOOK.shouldInterpolate()) {
                     event.setYaw(yaw);
                     event.setPitch(pitch);
                     lerpStart = System.currentTimeMillis();
@@ -85,7 +85,7 @@ public class CameraEvents {
             pitch = (float) dy + prevPitch + originalPitch;
         else
             pitch = (float) dy - prevPitch + originalPitch;
-        if (ModConfigs.FREELOOK.getSettings().viewClamping())
+        if (ModConfigs.FREELOOK.shouldClamp())
             yaw = MathHelper.clamp(yaw, (originalYaw + -100.0F), (originalYaw + 100.0F));
         pitch = MathHelper.clamp(pitch, -90.0F, 90.0F);
 
@@ -96,7 +96,7 @@ public class CameraEvents {
     }
 
     private static void interpolate(CameraSetup event) {
-        double duration = ModConfigs.FREELOOK.getSettings().getInterpolationSpeed() * 1000f;
+        double duration = ModConfigs.FREELOOK.getInterpolateSpeed() * 1000f;
         float delta = (System.currentTimeMillis() - lerpStart) - lerpTimeElapsed;
         delta /= duration;
 

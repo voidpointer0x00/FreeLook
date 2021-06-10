@@ -13,7 +13,7 @@ public class FreeLookConfiguration extends BaseConfig {
 
     @Override
     public String getName() {
-        return "Settings";
+        return "FreeLook";
     }
 
     @Override
