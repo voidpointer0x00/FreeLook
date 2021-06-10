@@ -4,8 +4,8 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.recipebook.IRecipeShownListener;
 import net.minecraft.client.gui.recipebook.RecipeBookGui;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.screen.inventory.ContainerScreen;
+import net.minecraft.client.gui.screen.*;
+import net.minecraft.client.gui.screen.inventory.*;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.settings.KeyBinding;
 import net.minecraft.server.integrated.IntegratedServer;
@@ -14,6 +14,7 @@ import net.minecraftforge.client.event.GuiScreenEvent;
 import net.minecraftforge.client.event.InputUpdateEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.thedudemc.freelook.FreeLook;
 import net.thedudemc.freelook.init.ModConfigs;
@@ -27,10 +28,11 @@ import java.util.List;
 /**
  * A lot of this code is credited to PieKing1215 in their Mod InvMove. I suggest disabling this
  * feature and installing their mod for more compatibility and features!
- *
+ * <p>
  * https://www.curseforge.com/minecraft/mc-mods/invmove
  * https://github.com/PieKing1215/InvMove-Forge
  */
+@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class InventoryEvents {
 
     @SubscribeEvent
@@ -49,34 +51,30 @@ public class InventoryEvents {
         if (screen == null) return false;
 
         IntegratedServer server = Minecraft.getInstance().getIntegratedServer();
-        if (screen.isPauseScreen() && Minecraft.getInstance().isSingleplayer() && (server == null || !server.getPublic()))
+        if (screen.isPauseScreen() && Minecraft.getInstance().isSingleplayer() && (server != null && server.getPublic()))
             return false;
 
-//        if (screen instanceof InventoryScreen) return true;
-//        if (screen instanceof CreativeScreen) return true;
-//        if (screen instanceof CraftingScreen) return true;
-//        if (screen instanceof ChestScreen) return true;
-//        if (screen instanceof ShulkerBoxScreen) return true;
-//        if (screen instanceof DispenserScreen) return true;
-//        if (screen instanceof HopperScreen) return true;
-//        if (screen instanceof EnchantmentScreen) return true;
-//        if (screen instanceof AnvilScreen) return true;
-//        if (screen instanceof BeaconScreen) return true;
-//        if (screen instanceof BrewingStandScreen) return true;
-//        if (screen instanceof FurnaceScreen) return true;
-//        if (screen instanceof BlastFurnaceScreen) return true;
-//        if (screen instanceof SmokerScreen) return true;
-//        if (screen instanceof LoomScreen) return true;
-//        if (screen instanceof CartographyTableScreen) return true;
-//        if (screen instanceof GrindstoneScreen) return true;
-//        if (screen instanceof StonecutterScreen) return true;
-//        if (screen instanceof MerchantScreen) return true;
-//        if (screen instanceof ReadBookScreen) return true;
-//        if (screen instanceof EditBookScreen) return true;
-        if (screen instanceof ContainerScreen)
-            return true;
-
-        return false;
+        if (screen instanceof InventoryScreen) return true;
+        if (screen instanceof CreativeScreen) return true;
+        if (screen instanceof CraftingScreen) return true;
+        if (screen instanceof ChestScreen) return true;
+        if (screen instanceof ShulkerBoxScreen) return true;
+        if (screen instanceof DispenserScreen) return true;
+        if (screen instanceof HopperScreen) return true;
+        if (screen instanceof EnchantmentScreen) return true;
+        if (screen instanceof AnvilScreen) return true;
+        if (screen instanceof BeaconScreen) return true;
+        if (screen instanceof BrewingStandScreen) return true;
+        if (screen instanceof FurnaceScreen) return true;
+        if (screen instanceof BlastFurnaceScreen) return true;
+        if (screen instanceof SmokerScreen) return true;
+        if (screen instanceof LoomScreen) return true;
+        if (screen instanceof CartographyTableScreen) return true;
+        if (screen instanceof GrindstoneScreen) return true;
+        if (screen instanceof StonecutterScreen) return true;
+        if (screen instanceof MerchantScreen) return true;
+        if (screen instanceof ReadBookScreen) return true;
+        return screen instanceof EditBookScreen;
     }
 
     public static void movePlayer(MovementInput input, boolean slow, boolean isSpectator) {
