@@ -20,7 +20,7 @@ public class FreeLookConfiguration extends BaseConfig {
     protected void reset() {
         clampView = new Option.BooleanValue(true, "Clamp your head rotation to your shoulders. As you would expect in real life.");
         interpolate = new Option.BooleanValue(true, "Smooth the camera returning to original direction. Instead of snapping back instantly.");
-        interpolateSpeed = new Option.DoubleValue(1.0D, "The time in seconds to move your view back to the original position.");
+        interpolateSpeed = new Option.DoubleValue(0.2D, "The time in seconds to move your view back to the original position.");
         moveInInventory = new Option.BooleanValue(false, "While an inventory is open, continue to move the player around.");
     }
 
