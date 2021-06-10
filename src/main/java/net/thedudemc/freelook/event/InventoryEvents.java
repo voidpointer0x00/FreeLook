@@ -18,7 +18,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.thedudemc.freelook.FreeLook;
 import net.thedudemc.freelook.init.ModConfigs;
-
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -39,10 +38,10 @@ public class InventoryEvents {
     public static void onInputUpdate(InputUpdateEvent event) {
         if (!ModConfigs.FREELOOK.shouldMoveInInventory()) return;
 
-        Screen currentScreen = Minecraft.getInstance().currentScreen;
+        Screen currentScreen = Minecraft.getInstance().screen;
         if (canMoveIn(currentScreen) && !inTextField(currentScreen)) {
-            KeyBinding.updateKeyBindState();
-            movePlayer(event.getMovementInput(), Minecraft.getInstance().player.isSneaking(), Minecraft.getInstance().player.isSpectator());
+            KeyBinding.setAll();
+            movePlayer(event.getMovementInput(), Minecraft.getInstance().player.isShiftKeyDown(), Minecraft.getInstance().player.isSpectator());
 
         }
     }
@@ -50,8 +49,8 @@ public class InventoryEvents {
     public static boolean canMoveIn(Screen screen) {
         if (screen == null) return false;
 
-        IntegratedServer server = Minecraft.getInstance().getIntegratedServer();
-        if (screen.isPauseScreen() && Minecraft.getInstance().isSingleplayer() && (server != null && server.getPublic()))
+        IntegratedServer server = Minecraft.getInstance().getSingleplayerServer();
+        if (screen.isPauseScreen() && Minecraft.getInstance().hasSingleplayerServer() && (server != null && server.isPublished()))
             return false;
 
         if (screen instanceof InventoryScreen) return true;
@@ -78,19 +77,19 @@ public class InventoryEvents {
     }
 
     public static void movePlayer(MovementInput input, boolean slow, boolean isSpectator) {
-        input.forwardKeyDown = isKeyDown(Minecraft.getInstance().gameSettings.keyBindForward);
-        input.backKeyDown = isKeyDown(Minecraft.getInstance().gameSettings.keyBindBack);
-        input.leftKeyDown = isKeyDown(Minecraft.getInstance().gameSettings.keyBindLeft);
-        input.rightKeyDown = isKeyDown(Minecraft.getInstance().gameSettings.keyBindRight);
-        input.moveForward = input.forwardKeyDown == input.backKeyDown ? 0.0F : (float) (input.forwardKeyDown ? 1 : -1);
-        input.moveStrafe = input.leftKeyDown == input.rightKeyDown ? 0.0F : (float) (input.leftKeyDown ? 1 : -1);
-        input.jump = isKeyDown(Minecraft.getInstance().gameSettings.keyBindJump);
-        input.sneaking = isKeyDown(Minecraft.getInstance().gameSettings.keyBindSneak);
-        if (!isSpectator && (input.sneaking || slow)) {
-            input.moveStrafe = (float) ((double) input.moveStrafe * 0.3D);
-            input.moveForward = (float) ((double) input.moveForward * 0.3D);
+        input.up = isKeyDown(Minecraft.getInstance().options.keyUp);
+        input.down = isKeyDown(Minecraft.getInstance().options.keyDown);
+        input.left = isKeyDown(Minecraft.getInstance().options.keyLeft);
+        input.right = isKeyDown(Minecraft.getInstance().options.keyRight);
+        input.forwardImpulse = input.up == input.down ? 0.0F : (float) (input.up ? 1 : -1);
+        input.leftImpulse = input.left == input.right ? 0.0F : (float) (input.left ? 1 : -1);
+        input.jumping = isKeyDown(Minecraft.getInstance().options.keyJump);
+        input.shiftKeyDown = isKeyDown(Minecraft.getInstance().options.keyShift);
+        if (!isSpectator && (input.shiftKeyDown || slow)) {
+            input.leftImpulse = (float) ((double) input.leftImpulse * 0.3D);
+            input.forwardImpulse = (float) ((double) input.forwardImpulse * 0.3D);
         }
-        if (isKeyDown(Minecraft.getInstance().gameSettings.keyBindSprint)) {
+        if (isKeyDown(Minecraft.getInstance().options.keySprint)) {
             Minecraft.getInstance().player.setSprinting(true);
         }
     }
@@ -115,7 +114,7 @@ public class InventoryEvents {
                 f.setAccessible(true);
                 if (TextFieldWidget.class.isAssignableFrom(f.getType())) {
                     TextFieldWidget tfw = (TextFieldWidget) f.get(screen);
-                    if (tfw != null && tfw.canWrite()) return true;
+                    if (tfw != null && tfw.canConsumeInput()) return true;
                 }
             }
         } catch (Exception e) {
@@ -124,8 +123,8 @@ public class InventoryEvents {
 
         if (screen instanceof IRecipeShownListener) {
             try {
-                TextFieldWidget searchBar = ObfuscationReflectionHelper.getPrivateValue(RecipeBookGui.class, ((IRecipeShownListener) screen).getRecipeGui(), "field_193962_q"); //searchField
-                if (searchBar.canWrite()) return true;
+                TextFieldWidget searchBar = ObfuscationReflectionHelper.getPrivateValue(RecipeBookGui.class, ((IRecipeShownListener) screen).getRecipeBookComponent(), "field_193962_q"); //searchField
+                if (searchBar.canConsumeInput()) return true;
             } catch (Exception ignored) {
             }
         }

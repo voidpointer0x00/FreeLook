@@ -1,11 +1,10 @@
 buildscript {
     repositories {
         maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
         mavenCentral()
     }
     dependencies {
-        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '3.+', changing: true
+        classpath group: 'net.minecraftforge.gradle', name: 'ForgeGradle', version: '4.1.+', changing: true
     }
 }
 apply plugin: 'net.minecraftforge.gradle'
@@ -13,21 +12,20 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 
-version = '1.3.2'
+version = '1.4'
 group = 'net.thedudemc.freelook'
-archivesBaseName = 'FreeLook-1.14.4'
+archivesBaseName = 'FreeLook-1.16.5'
 
-sourceCompatibility = targetCompatibility = compileJava.sourceCompatibility = compileJava.targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
+java.toolchain.languageVersion = JavaLanguageVersion.of(8) // Mojang ships Java 8 to end users, so your mod should target Java 8.
 
+println('Java: ' + System.getProperty('java.version') + ' JVM: ' + System.getProperty('java.vm.version') + '(' + System.getProperty('java.vendor') + ') Arch: ' + System.getProperty('os.arch'))
 minecraft {
 
-    mappings channel: 'snapshot', version: '20201028-1.16.3'
+    mappings channel: 'official', version: '1.16.5'
 
     runs {
         client {
             workingDirectory project.file('run')
-
-
             mods {
                 freelook {
                     source sourceSets.main
@@ -38,6 +36,9 @@ minecraft {
         server {
             workingDirectory project.file('server')
 
+            property 'forge.logging.markers', 'REGISTRIES'
+
+            property 'forge.logging.console.level', 'debug'
 
             mods {
                 freelook {
@@ -45,23 +46,35 @@ minecraft {
                 }
             }
         }
-
     }
 }
+
+sourceSets.main.resources { srcDir 'src/generated/resources' }
+
 dependencies {
-    minecraft 'net.minecraftforge:forge:1.16.4-35.1.0'
+    minecraft 'net.minecraftforge:forge:1.16.5-36.1.0'
 }
 
-def reobfFile = file("$buildDir/reobfJar/output.jar")
-def reobfArtifact = artifacts.add('default', reobfFile) {
-    type 'jar'
-    builtBy 'reobfJar'
+jar {
+    manifest {
+        attributes([
+                "Specification-Title": "freelook",
+                "Specification-Vendor": "jmilthedude",
+                "Specification-Version": "1.4", // We are version 1 of ourselves
+                "Implementation-Title": project.name,
+                "Implementation-Version": "${version}",
+                "Implementation-Vendor" :"jmilthedude",
+                "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
 }
+
+jar.finalizedBy('reobfJar')
 
 publishing {
     publications {
         mavenJava(MavenPublication) {
-            artifact reobfArtifact
+            artifact jar
         }
     }
     repositories {

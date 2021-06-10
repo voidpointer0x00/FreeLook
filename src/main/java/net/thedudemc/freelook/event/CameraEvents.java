@@ -40,12 +40,12 @@ public class CameraEvents {
     @SubscribeEvent
     public static void onCameraUpdate(CameraSetup event) {
         if (player == null) player = mc.player;
-        if (mc.gameSettings.getPointOfView() != PointOfView.FIRST_PERSON) return;
+        if (mc.options.getCameraType() != PointOfView.FIRST_PERSON) return;
 
         if (isInterpolating) {
             lockPlayerRotation();
             interpolate(event);
-        } else if (ModKeybinds.keyFreeLook.isKeyDown()) {
+        } else if (ModKeybinds.keyFreeLook.isDown()) {
             if (initialPress) setup();
 
             lockPlayerRotation();
@@ -70,18 +70,18 @@ public class CameraEvents {
     }
 
     private static void setup() {
-        originalYaw = player.rotationYaw;
-        originalPitch = player.rotationPitch;
-        originalHeadYaw = player.rotationYawHead;
-        prevMouseX = mc.mouseHelper.getMouseX();
-        prevMouseY = mc.mouseHelper.getMouseY();
+        originalYaw = player.yRot;
+        originalPitch = player.xRot;
+        originalHeadYaw = player.yHeadRot;
+        prevMouseX = mc.mouseHandler.xpos();
+        prevMouseY = mc.mouseHandler.ypos();
     }
 
     private static void updateCameraRotation(CameraSetup event) {
         double dx = mouseDX * getSensitivity() * 0.15D;
         double dy = mouseDY * getSensitivity() * 0.15D;
         yaw = (float) dx - prevYaw + originalYaw;
-        if (mc.gameSettings.invertMouse)
+        if (mc.options.invertYMouse)
             pitch = (float) dy + prevPitch + originalPitch;
         else
             pitch = (float) dy - prevPitch + originalPitch;
@@ -135,21 +135,21 @@ public class CameraEvents {
     }
 
     private static void lockPlayerRotation() {
-        player.rotationYaw = originalYaw;
-        player.rotationPitch = originalPitch;
-        player.rotationYawHead = originalHeadYaw;
+        player.yRot = originalYaw;
+        player.xRot = originalPitch;
+        player.yHeadRot = originalHeadYaw;
     }
 
     private static void updateMouseInput() {
-        mouseDX = prevMouseX - mc.mouseHelper.getMouseX();
-        mouseDY = prevMouseY - mc.mouseHelper.getMouseY();
+        mouseDX = prevMouseX - mc.mouseHandler.xpos();
+        mouseDY = prevMouseY - mc.mouseHandler.ypos();
 
-        prevMouseX = mc.mouseHelper.getMouseX();
-        prevMouseY = mc.mouseHelper.getMouseY();
+        prevMouseX = mc.mouseHandler.xpos();
+        prevMouseY = mc.mouseHandler.ypos();
     }
 
     private static double getSensitivity() {
-        return (mc.gameSettings.mouseSensitivity * 0.6D * 0.2D) * 8.0D; // some magic number based on MC code
+        return (mc.options.sensitivity * 0.6D * 0.2D) * 8.0D; // some magic number based on MC code
     }
 
 }
