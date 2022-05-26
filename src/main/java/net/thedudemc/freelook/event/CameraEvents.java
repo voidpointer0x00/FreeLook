@@ -7,6 +7,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
+import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.thedudemc.freelook.init.ModKeybinds;
@@ -35,6 +36,11 @@ public class CameraEvents {
     private static long lerpTimeElapsed = 0;
     private static boolean initialPress = true;
     private static boolean isInterpolating = false;
+
+    @SubscribeEvent
+    public static void onInput(InputEvent.MouseInputEvent event) {
+        
+    }
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
