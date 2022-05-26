@@ -1,23 +1,23 @@
 package net.thedudemc.freelook.event;
 
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.settings.PointOfView;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.thedudemc.freelook.init.ModKeybinds;
 import net.thedudemc.freelook.init.ModConfigs;
+import net.thedudemc.freelook.init.ModKeybinds;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CameraEvents {
 
-    private static Minecraft mc = Minecraft.getInstance();
-    private static ClientPlayerEntity player;
+    private static final Minecraft mc = Minecraft.getInstance();
+    private static LocalPlayer player;
 
     private static float yaw;
     private static float pitch;
@@ -46,7 +46,7 @@ public class CameraEvents {
     @SubscribeEvent
     public static void onCameraUpdate(CameraSetup event) {
         if (player == null) player = mc.player;
-        if (mc.options.getCameraType() != PointOfView.FIRST_PERSON) return;
+        if (mc.options.getCameraType() != CameraType.FIRST_PERSON) return;
 
         if (isInterpolating) {
             lockPlayerRotation();
@@ -76,8 +76,8 @@ public class CameraEvents {
     }
 
     private static void setup() {
-        originalYaw = player.yRot;
-        originalPitch = player.xRot;
+        originalYaw = player.getYRot();
+        originalPitch = player.getXRot();
         originalHeadYaw = player.yHeadRot;
         prevMouseX = mc.mouseHandler.xpos();
         prevMouseY = mc.mouseHandler.ypos();
@@ -92,8 +92,8 @@ public class CameraEvents {
         else
             pitch = (float) dy - prevPitch + originalPitch;
         if (ModConfigs.FREELOOK.shouldClamp())
-            yaw = MathHelper.clamp(yaw, (originalYaw + -100.0F), (originalYaw + 100.0F));
-        pitch = MathHelper.clamp(pitch, -90.0F, 90.0F);
+            yaw = Mth.clamp(yaw, (originalYaw + -100.0F), (originalYaw + 100.0F));
+        pitch = Mth.clamp(pitch, -90.0F, 90.0F);
 
         event.setYaw(yaw);
         event.setPitch(pitch);
@@ -141,8 +141,8 @@ public class CameraEvents {
     }
 
     private static void lockPlayerRotation() {
-        player.yRot = originalYaw;
-        player.xRot = originalPitch;
+        player.setYRot(originalYaw);
+        player.setXRot(originalPitch);
         player.yHeadRot = originalHeadYaw;
     }
 
