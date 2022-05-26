@@ -7,7 +7,7 @@ import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
-import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.thedudemc.freelook.init.ModConfigs;
@@ -37,9 +37,15 @@ public class CameraEvents {
     private static boolean initialPress = true;
     private static boolean isInterpolating = false;
 
+    private static boolean toggle = false;
+
     @SubscribeEvent
-    public static void onInput(InputEvent.MouseInputEvent event) {
-        
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) return;
+
+        if (ModKeybinds.keyToggleMode.consumeClick()) {
+            toggle = !toggle;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
@@ -51,7 +57,7 @@ public class CameraEvents {
         if (isInterpolating) {
             lockPlayerRotation();
             interpolate(event);
-        } else if (ModKeybinds.keyFreeLook.isDown()) {
+        } else if (ModKeybinds.keyFreeLook.isDown() || toggle) {
             if (initialPress) setup();
 
             lockPlayerRotation();
@@ -89,8 +95,7 @@ public class CameraEvents {
         yaw = (float) dx - prevYaw + originalYaw;
         if (mc.options.invertYMouse) {
             pitch = (float) dy + prevPitch + originalPitch;
-        }
-        else {
+        } else {
             pitch = (float) dy - prevPitch + originalPitch;
         }
         if (ModConfigs.FREELOOK.shouldClamp()) {
