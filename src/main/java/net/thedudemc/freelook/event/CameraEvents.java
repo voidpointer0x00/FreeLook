@@ -87,18 +87,22 @@ public class CameraEvents {
         double dx = mouseDX * getSensitivity() * 0.15D;
         double dy = mouseDY * getSensitivity() * 0.15D;
         yaw = (float) dx - prevYaw + originalYaw;
-        if (mc.options.invertYMouse)
+        if (mc.options.invertYMouse) {
             pitch = (float) dy + prevPitch + originalPitch;
-        else
+        }
+        else {
             pitch = (float) dy - prevPitch + originalPitch;
-        if (ModConfigs.FREELOOK.shouldClamp())
+        }
+        if (ModConfigs.FREELOOK.shouldClamp()) {
             yaw = Mth.clamp(yaw, (originalYaw + -100.0F), (originalYaw + 100.0F));
+        }
         pitch = Mth.clamp(pitch, -90.0F, 90.0F);
+
+        prevYaw = Mth.clamp((float) dx + prevYaw, -99f, 99f);
+        prevPitch = (float) dy + prevPitch;
 
         event.setYaw(yaw);
         event.setPitch(pitch);
-        prevYaw = (float) dx + prevYaw;
-        prevPitch = (float) dy + prevPitch;
     }
 
     private static void interpolate(CameraSetup event) {
