@@ -148,8 +148,6 @@ public class CameraEvents {
         pitch = 0;
         prevYaw = 0;
         prevPitch = 0;
-        originalYaw = 0;
-        originalPitch = 0;
         mouseDX = 0;
         mouseDY = 0;
         prevMouseX = 0;
