@@ -1,23 +1,23 @@
 package net.thedudemc.freelook.event;
 
+import net.minecraft.client.CameraType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.settings.PointOfView;
-import net.minecraft.util.math.MathHelper;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.EntityViewRenderEvent.CameraSetup;
-import net.minecraftforge.client.event.InputEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import net.thedudemc.freelook.init.ModKeybinds;
 import net.thedudemc.freelook.init.ModConfigs;
+import net.thedudemc.freelook.init.ModKeybinds;
 
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class CameraEvents {
 
-    private static Minecraft mc = Minecraft.getInstance();
-    private static ClientPlayerEntity player;
+    private static Minecraft minecraft;
+    private static LocalPlayer player;
 
     private static float yaw;
     private static float pitch;
@@ -37,68 +37,82 @@ public class CameraEvents {
     private static boolean initialPress = true;
     private static boolean isInterpolating = false;
 
+    private static boolean toggle = false;
+
     @SubscribeEvent
-    public static void onInput(InputEvent.MouseInputEvent event) {
-        
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase == TickEvent.Phase.END) return;
+
+        if (ModKeybinds.keyToggleMode.consumeClick()) {
+            toggle = !toggle;
+        }
     }
 
     @OnlyIn(Dist.CLIENT)
     @SubscribeEvent
     public static void onCameraUpdate(CameraSetup event) {
-        if (player == null) player = mc.player;
-        if (mc.options.getCameraType() != PointOfView.FIRST_PERSON) return;
+        if (getMinecraft().options.getCameraType() != CameraType.FIRST_PERSON) return;
 
-        if (isInterpolating) {
-            lockPlayerRotation();
-            interpolate(event);
-        } else if (ModKeybinds.keyFreeLook.isDown()) {
-            if (initialPress) setup();
+        if (ModKeybinds.keyFreeLook.isDown() || toggle) {
+            if (initialPress) {
+                reset(event);
+                setup();
+                initialPress = false;
+            }
 
             lockPlayerRotation();
             updateMouseInput();
             updateCameraRotation(event);
 
-            initialPress = false;
+        } else if (isInterpolating) {
+            lockPlayerRotation();
+            interpolate(event);
         } else {
             if (!initialPress) {
                 if (ModConfigs.FREELOOK.shouldInterpolate()) {
                     event.setYaw(yaw);
                     event.setPitch(pitch);
-                    lerpStart = System.currentTimeMillis();
-                    isInterpolating = true;
+                    startInterpolation();
                 } else {
-                    event.setYaw(originalYaw);
-                    event.setPitch(originalPitch);
+                    reset(event);
                 }
                 initialPress = true;
             }
         }
     }
 
+    private static void startInterpolation() {
+        lerpStart = System.currentTimeMillis();
+        isInterpolating = true;
+    }
+
     private static void setup() {
-        originalYaw = player.yRot;
-        originalPitch = player.xRot;
-        originalHeadYaw = player.yHeadRot;
-        prevMouseX = mc.mouseHandler.xpos();
-        prevMouseY = mc.mouseHandler.ypos();
+        originalYaw = getPlayer().getYRot();
+        originalPitch = getPlayer().getXRot();
+        originalHeadYaw = getPlayer().yHeadRot;
+        prevMouseX = getMinecraft().mouseHandler.xpos();
+        prevMouseY = getMinecraft().mouseHandler.ypos();
     }
 
     private static void updateCameraRotation(CameraSetup event) {
         double dx = mouseDX * getSensitivity() * 0.15D;
         double dy = mouseDY * getSensitivity() * 0.15D;
         yaw = (float) dx - prevYaw + originalYaw;
-        if (mc.options.invertYMouse)
+        if (getMinecraft().options.invertYMouse) {
             pitch = (float) dy + prevPitch + originalPitch;
-        else
+        } else {
             pitch = (float) dy - prevPitch + originalPitch;
-        if (ModConfigs.FREELOOK.shouldClamp())
-            yaw = MathHelper.clamp(yaw, (originalYaw + -100.0F), (originalYaw + 100.0F));
-        pitch = MathHelper.clamp(pitch, -90.0F, 90.0F);
+        }
+        if (ModConfigs.FREELOOK.shouldClamp()) {
+            yaw = Mth.clamp(yaw, (originalYaw + -100.0F), (originalYaw + 100.0F));
+        }
+        pitch = Mth.clamp(pitch, -90.0F, 90.0F);
+
+        prevYaw = Mth.clamp((float) dx + prevYaw, -99f, 99f);
+        prevPitch = (float) dy + prevPitch;
 
         event.setYaw(yaw);
         event.setPitch(pitch);
-        prevYaw = (float) dx + prevYaw;
-        prevPitch = (float) dy + prevPitch;
     }
 
     private static void interpolate(CameraSetup event) {
@@ -116,7 +130,9 @@ public class CameraEvents {
         pitch = interpolatedPitch;
 
         lerpTimeElapsed = (System.currentTimeMillis() - lerpStart);
-        if (lerpTimeElapsed >= duration) reset(event);
+        if (lerpTimeElapsed >= duration) {
+            reset(event);
+        }
     }
 
     private static float lerp(float a, float b, float t) {
@@ -132,30 +148,40 @@ public class CameraEvents {
         pitch = 0;
         prevYaw = 0;
         prevPitch = 0;
-        originalYaw = 0;
-        originalPitch = 0;
         mouseDX = 0;
         mouseDY = 0;
         prevMouseX = 0;
         prevMouseY = 0;
+        player = null;
+        minecraft = null;
     }
 
     private static void lockPlayerRotation() {
-        player.yRot = originalYaw;
-        player.xRot = originalPitch;
-        player.yHeadRot = originalHeadYaw;
+        getPlayer().setYRot(originalYaw);
+        getPlayer().setXRot(originalPitch);
+        getPlayer().yHeadRot = originalHeadYaw;
     }
 
     private static void updateMouseInput() {
-        mouseDX = prevMouseX - mc.mouseHandler.xpos();
-        mouseDY = prevMouseY - mc.mouseHandler.ypos();
+        mouseDX = prevMouseX - getMinecraft().mouseHandler.xpos();
+        mouseDY = prevMouseY - getMinecraft().mouseHandler.ypos();
 
-        prevMouseX = mc.mouseHandler.xpos();
-        prevMouseY = mc.mouseHandler.ypos();
+        prevMouseX = getMinecraft().mouseHandler.xpos();
+        prevMouseY = getMinecraft().mouseHandler.ypos();
     }
 
     private static double getSensitivity() {
-        return (mc.options.sensitivity * 0.6D * 0.2D) * 8.0D; // some magic number based on MC code
+        return (getMinecraft().options.sensitivity * 0.6D * 0.2D) * 8.0D; // some magic number based on MC code
+    }
+
+    private static LocalPlayer getPlayer() {
+        if (player == null) player = getMinecraft().player;
+        return player;
+    }
+
+    private static Minecraft getMinecraft() {
+        if (minecraft == null) minecraft = Minecraft.getInstance();
+        return minecraft;
     }
 
 }
