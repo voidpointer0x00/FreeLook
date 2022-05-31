@@ -6,9 +6,7 @@
   ],
   "mixins": [
     "CameraAccessor",
-    "GameRendererMixin",
-    "MinecraftMixin",
-    "OptionsAccessor"
+    "GameRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1

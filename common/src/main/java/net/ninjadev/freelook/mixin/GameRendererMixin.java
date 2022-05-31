@@ -16,12 +16,12 @@ import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
 
-    @Final @Shadow private Camera mainCamera;
 
     @Inject(method = "renderLevel",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.AFTER)
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.AFTER),
+            locals = LocalCapture.CAPTURE_FAILHARD
     )
-    public void onCameraUpdate(float f, long l, PoseStack poseStack, CallbackInfo ci) {
-        CameraEvents.onCameraUpdate(mainCamera);
+    public void renderLevel(float f, long l, PoseStack poseStack, CallbackInfo ci, boolean bl, Camera camera, PoseStack poseStack2, double d, float g, Matrix4f matrix4f) {
+        CameraEvents.onCameraUpdate(camera);
     }
 }

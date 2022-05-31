@@ -60,7 +60,8 @@ public class CameraEvents {
         } else {
             if (!initialPress) {
                 if (ModConfigs.FREELOOK.shouldInterpolate()) {
-                    ((CameraAccessor) camera).setRotation(yaw, pitch);
+                    ((CameraAccessor) camera).setYaw(yaw);
+                    ((CameraAccessor) camera).setPitch(pitch);
                     startInterpolation();
                 } else {
                     reset(camera);
@@ -100,7 +101,8 @@ public class CameraEvents {
         prevYaw = Mth.clamp((float) dx + prevYaw, -99f, 99f);
         prevPitch = (float) dy + prevPitch;
 
-        ((CameraAccessor) camera).setRotation(yaw, pitch);
+        ((CameraAccessor) camera).setYaw(yaw);
+        ((CameraAccessor) camera).setPitch(pitch);
     }
 
     private static void interpolate(Camera camera) {
@@ -112,8 +114,8 @@ public class CameraEvents {
         float interpolatedYaw = lerp(yaw, originalYaw, percentCompleted * 10f * delta);
         float interpolatedPitch = lerp(pitch, originalPitch, percentCompleted * 10f * delta);
 
-
-        ((CameraAccessor) camera).setRotation(yaw, pitch);
+        ((CameraAccessor) camera).setYaw(yaw);
+        ((CameraAccessor) camera).setPitch(pitch);
         yaw = interpolatedYaw;
         pitch = interpolatedPitch;
 
@@ -128,7 +130,8 @@ public class CameraEvents {
     }
 
     private static void reset(Camera camera) {
-        ((CameraAccessor) camera).setRotation(yaw, pitch);
+        ((CameraAccessor) camera).setYaw(yaw);
+        ((CameraAccessor) camera).setPitch(pitch);
         isInterpolating = false;
         lerpTimeElapsed = 0;
         yaw = 0;
