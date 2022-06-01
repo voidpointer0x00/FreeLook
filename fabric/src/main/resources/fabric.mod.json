@@ -15,10 +15,10 @@
   "environment": "client",
   "entrypoints": {
     "main": [
-      "net.ninjadev.spawnvisualizer.fabric.FreeLookFabric"
+      "net.ninjadev.freelook.fabric.FreeLookFabric"
     ],
     "client": [
-      "net.ninjadev.spawnvisualizer.fabric.FreeLookClient"
+      "net.ninjadev.freelook.fabric.FreeLookClient"
     ]
   },
   "mixins": [
