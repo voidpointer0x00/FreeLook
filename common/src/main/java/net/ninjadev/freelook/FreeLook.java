@@ -4,8 +4,6 @@ import net.ninjadev.freelook.init.ModConfigs;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.Random;
-
 public class FreeLook {
 
     public static final String MODID = "freelook";
