@@ -34,7 +34,7 @@ public class CameraEvents {
 
     private static boolean toggle = false;
 
-    public static void onClientTick(Minecraft minecraft) {
+    public static void onClientTick() {
         if (ModKeybinds.keyToggleMode.consumeClick()) {
             toggle = !toggle;
         }
