@@ -9,7 +9,7 @@ public class FreeLookClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         FreeLook.init();
-        KeyBindingHelper.registerKeyBinding(ModKeybinds.keyFreeLook);
-        KeyBindingHelper.registerKeyBinding(ModKeybinds.keyToggleMode);
+//        KeyBindingHelper.registerKeyBinding(ModKeybinds.keyFreeLook);
+//        KeyBindingHelper.registerKeyBinding(ModKeybinds.keyToggleMode);
     }
 }

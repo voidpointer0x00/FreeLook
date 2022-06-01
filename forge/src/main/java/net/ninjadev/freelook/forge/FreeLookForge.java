@@ -17,7 +17,7 @@ public class FreeLookForge {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        ClientRegistry.registerKeyBinding(ModKeybinds.keyFreeLook);
-        ClientRegistry.registerKeyBinding(ModKeybinds.keyToggleMode);
+//        ClientRegistry.registerKeyBinding(ModKeybinds.keyFreeLook);
+//        ClientRegistry.registerKeyBinding(ModKeybinds.keyToggleMode);
     }
 }
