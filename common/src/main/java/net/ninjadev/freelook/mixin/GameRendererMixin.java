@@ -6,20 +6,22 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.renderer.GameRenderer;
 import net.ninjadev.freelook.event.CameraEvents;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
 @Mixin(GameRenderer.class)
-public class GameRendererMixin {
+public abstract class GameRendererMixin {
 
+    @Shadow public abstract Camera getMainCamera();
 
     @Inject(method = "renderLevel",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setup(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;ZZF)V", shift = At.Shift.AFTER),
             locals = LocalCapture.CAPTURE_FAILHARD
     )
-    public void renderLevel(float f, long l, PoseStack poseStack, CallbackInfo ci, boolean bl, Camera camera, PoseStack poseStack2, double d, float g, Matrix4f matrix4f) {
-        CameraEvents.onCameraUpdate(camera);
+    public void renderLevel(final float f, final long l, final PoseStack poseStack, final CallbackInfo callbackInfo) {
+        CameraEvents.onCameraUpdate(getMainCamera());
     }
 }
