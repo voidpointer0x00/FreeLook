@@ -43,7 +43,7 @@ public class CameraEvents {
     }
 
     public static void onCameraUpdate(Camera camera) {
-        if (getMinecraft().options.getCameraType() != CameraType.FIRST_PERSON) return;
+        if (getMinecraft().options.getCameraType() == CameraType.THIRD_PERSON_FRONT) return;
 
         if (ModKeybinds.keyFreeLook.isDown() || toggle) {
             isFreelooking = true;
@@ -176,5 +176,9 @@ public class CameraEvents {
     private static Minecraft getMinecraft() {
         if (minecraft == null) minecraft = Minecraft.getInstance();
         return minecraft;
+    }
+
+    public static boolean shouldUpdate() {
+        return ModKeybinds.keyFreeLook.isDown() || CameraEvents.toggle || CameraEvents.isFreelooking || CameraEvents.isInterpolating;
     }
 }
