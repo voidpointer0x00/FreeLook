@@ -22,6 +22,6 @@ public abstract class GameRendererMixin {
             locals = LocalCapture.CAPTURE_FAILHARD
     )
     public void renderLevel(final float f, final long l, final PoseStack poseStack, final CallbackInfo callbackInfo) {
-        CameraEvents.onCameraUpdate(getMainCamera());
+        //CameraEvents.onCameraUpdate(getMainCamera());
     }
 }

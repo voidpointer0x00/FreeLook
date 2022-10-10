@@ -3,6 +3,7 @@
   "package": "net.ninjadev.freelook.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
+    "CameraMixin"
   ],
   "mixins": [
     "CameraAccessor",

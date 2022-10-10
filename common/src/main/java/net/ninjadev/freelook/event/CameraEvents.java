@@ -30,9 +30,11 @@ public class CameraEvents {
     private static long lerpStart = 0;
     private static long lerpTimeElapsed = 0;
     private static boolean initialPress = true;
-    private static boolean isInterpolating = false;
+    public static boolean isInterpolating = false;
 
-    private static boolean toggle = false;
+    public static boolean toggle = false;
+
+    public static boolean isFreelooking = false;
 
     public static void onClientTick() {
         if (ModKeybinds.keyToggleMode.consumeClick()) {
@@ -44,6 +46,7 @@ public class CameraEvents {
         if (getMinecraft().options.getCameraType() != CameraType.FIRST_PERSON) return;
 
         if (ModKeybinds.keyFreeLook.isDown() || toggle) {
+            isFreelooking = true;
             if (initialPress) {
                 reset(camera);
                 setup();
@@ -68,6 +71,7 @@ public class CameraEvents {
                 }
                 initialPress = true;
             }
+            isFreelooking = false;
         }
     }
 
