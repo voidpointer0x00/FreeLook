@@ -18,8 +18,9 @@ public class CameraMixin {
 
     @Redirect(method = "setup", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/Camera;setRotation(FF)V"))
     public void setRotation(Camera instance, float f, float g) {
-        if (Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_FRONT) return;
-        if (CameraEvents.shouldUpdate()) {
+        if (Minecraft.getInstance().options.getCameraType() == CameraType.THIRD_PERSON_FRONT) {
+            this.setRotation(f, g);
+        } else if (CameraEvents.shouldUpdate()) {
             CameraEvents.onCameraUpdate(instance);
         } else {
             this.setRotation(f, g);
