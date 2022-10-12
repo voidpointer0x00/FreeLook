@@ -30,9 +30,11 @@ public class CameraEvents {
     private static long lerpStart = 0;
     private static long lerpTimeElapsed = 0;
     private static boolean initialPress = true;
-    private static boolean isInterpolating = false;
+    public static boolean isInterpolating = false;
 
-    private static boolean toggle = false;
+    public static boolean toggle = false;
+
+    public static boolean isFreelooking = false;
 
     public static void onClientTick() {
         if (ModKeybinds.keyToggleMode.consumeClick()) {
@@ -41,9 +43,10 @@ public class CameraEvents {
     }
 
     public static void onCameraUpdate(Camera camera) {
-        if (getMinecraft().options.getCameraType() != CameraType.FIRST_PERSON) return;
+        if (getMinecraft().options.getCameraType() == CameraType.THIRD_PERSON_FRONT) return;
 
         if (ModKeybinds.keyFreeLook.isDown() || toggle) {
+            isFreelooking = true;
             if (initialPress) {
                 reset(camera);
                 setup();
@@ -68,6 +71,7 @@ public class CameraEvents {
                 }
                 initialPress = true;
             }
+            isFreelooking = false;
         }
     }
 
@@ -96,10 +100,10 @@ public class CameraEvents {
         if (ModConfigs.FREELOOK.shouldClamp()) {
             yaw = Mth.clamp(yaw, (originalYaw + -100.0F), (originalYaw + 100.0F));
         }
-        pitch = Mth.clamp(pitch, -90.0F, 90.0F);
+        pitch = Mth.clamp(pitch, -89.0F, 89.0F);
 
         prevYaw = Mth.clamp((float) dx + prevYaw, -99f, 99f);
-        prevPitch = (float) dy + prevPitch;
+        prevPitch = Mth.clamp((float) dy + prevPitch, -89f, 89f);
 
         ((CameraAccessor) camera).setYaw(yaw);
         ((CameraAccessor) camera).setPitch(pitch);
@@ -161,7 +165,7 @@ public class CameraEvents {
     }
 
     private static double getSensitivity() {
-        return (getMinecraft().options.sensitivity().get() * 0.6D * 0.2D) * 8.0D; // some magic number based on MC code
+        return Math.pow(getMinecraft().options.sensitivity().get() * 0.6D + 0.2D, 3.0D) * 8.0D; // some magic number based on MC code
     }
 
     private static LocalPlayer getPlayer() {
@@ -172,5 +176,9 @@ public class CameraEvents {
     private static Minecraft getMinecraft() {
         if (minecraft == null) minecraft = Minecraft.getInstance();
         return minecraft;
+    }
+
+    public static boolean shouldUpdate() {
+        return ModKeybinds.keyFreeLook.isDown() || CameraEvents.toggle || CameraEvents.isFreelooking || CameraEvents.isInterpolating;
     }
 }
