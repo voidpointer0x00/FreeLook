@@ -100,10 +100,10 @@ public class CameraEvents {
         if (ModConfigs.FREELOOK.shouldClamp()) {
             yaw = Mth.clamp(yaw, (originalYaw + -100.0F), (originalYaw + 100.0F));
         }
-        pitch = Mth.clamp(pitch, -90.0F, 90.0F);
+        pitch = Mth.clamp(pitch, -89.0F, 89.0F);
 
         prevYaw = Mth.clamp((float) dx + prevYaw, -99f, 99f);
-        prevPitch = (float) dy + prevPitch;
+        prevPitch = Mth.clamp((float) dy + prevPitch, -89f, 89f);
 
         ((CameraAccessor) camera).setYaw(yaw);
         ((CameraAccessor) camera).setPitch(pitch);
@@ -165,7 +165,7 @@ public class CameraEvents {
     }
 
     private static double getSensitivity() {
-        return (getMinecraft().options.sensitivity().get() * 0.6D * 0.2D) * 8.0D; // some magic number based on MC code
+        return Math.pow(getMinecraft().options.sensitivity().get() * 0.6D + 0.2D, 3.0D) * 8.0D; // some magic number based on MC code
     }
 
     private static LocalPlayer getPlayer() {
